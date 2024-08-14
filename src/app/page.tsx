@@ -8,9 +8,9 @@ async function HomePage() {
 
   return (
     <div>
-          <div className="grid grid-cols-3 gap-4">
-    </div>
-    <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4">
+      </div>
+      <div className="grid grid-cols-3 gap-4">
         {tasks.map((task) => (
           <TaskCard task={task} key={task.id} />
         ))}

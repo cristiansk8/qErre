@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ModeToggle } from "./theme-toggle-button";
 import { buttonVariants } from "./ui/button";
+import Providers from "./Providers";
+import Appbar from "./Appbar";
 
 function Navbar() {
   return (
@@ -12,11 +14,12 @@ function Navbar() {
       </Link>
 
       <div className="flex gap-x-2 items-center">
-        <Link href="/new" className={buttonVariants({ variant: "secondary" })}>
-          Create QR
-        </Link>
         <ModeToggle />
+        
       </div>
+      <Providers>
+          <Appbar />
+        </Providers>
     </nav>
   );
 }

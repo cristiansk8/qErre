@@ -1,5 +1,4 @@
-'use client'
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -24,26 +23,18 @@ import { Task } from "@prisma/client";
 import Link from "next/link";
 import { generateQRCodeDataURL } from "@/components/qr";
 
-export function TaskForm({ task }: { task?: Task }) {
+function TaskForm({ task }: { task?: Task }) {
+  const [name, setName] = useState(task?.name || "");
+  const [qrCode, setQRCode] = useState(task?.qrCode || "");
   const functionAction = task?.id ? updateTask : createTask;
-  const [url, setUrl] = useState(task?.name || '');
-  const [qrCode, setQrCode] = useState<string>('');
 
-  const handleInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newUrl = event.target.value;
-    setUrl(newUrl);
-
-    if (newUrl) {
-      try {
-        const dataURL = await generateQRCodeDataURL(newUrl);
-        setQrCode(dataURL);
-      } catch (err) {
-        console.error('Error generating QR code:', err);
-      }
-    } else {
-      setQrCode('');
+  useEffect(() => {
+    if (name) {
+      generateQRCodeDataURL(name)
+        .then(setQRCode)
+        .catch((err) => console.error("Error generating QR code:", err));
     }
-  };
+  }, [name]);
 
   return (
     <form action={functionAction}>
@@ -53,29 +44,23 @@ export function TaskForm({ task }: { task?: Task }) {
         <CardHeader>
           <CardTitle>Create QR</CardTitle>
           <CardDescription>
-            Complete el formulario a continuación para crear un QR.
+            Crea postea y trakea
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="name">URL de su sitio destino</Label>
+              <Label htmlFor="name">Name</Label>
               <Input
                 name="name"
                 id="name"
                 placeholder="Name of your task"
-                value={url}
-                onChange={handleInputChange}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="description">Description</Label>
-              {qrCode && (
-                <div>
-                  <img src={qrCode} alt="QR Code" />
-                  <p>Escanea este código QR para visitar {url}</p>
-                </div>
-              )}
               <Textarea
                 name="description"
                 id="description"
@@ -97,6 +82,12 @@ export function TaskForm({ task }: { task?: Task }) {
                 </SelectContent>
               </Select>
             </div>
+            {qrCode && (
+              <div className="flex flex-col space-y-1.5">
+                <Label>Generated QR Code</Label>
+                <img src={qrCode} alt="Generated QR Code" />
+              </div>
+            )}
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
@@ -111,3 +102,6 @@ export function TaskForm({ task }: { task?: Task }) {
     </form>
   );
 }
+
+export default TaskForm;
+

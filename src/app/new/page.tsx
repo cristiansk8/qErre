@@ -1,10 +1,10 @@
 'use client'
-import { TaskForm } from "./task-form"
+import TaskFromWrapper from "./taskFromWrapper"
 
 function NewPage() {
   return (
     <div className="flex justify-center items-center h-screen">
-     <TaskForm /> 
+     <TaskFromWrapper /> 
     </div>
   )
 }

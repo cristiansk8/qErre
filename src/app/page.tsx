@@ -1,3 +1,4 @@
+import TasksWrapper from "@/components/taks/TasksWrapper";
 import { TaskCard } from "@/components/task-card";
 import prisma from "@/lib/prisma";
 
@@ -15,7 +16,7 @@ async function HomePage() {
           <TaskCard task={task} key={task.id} />
         ))}
       </div>
-
+      <h1>QErres usuario</h1>
     </div>
 
   );

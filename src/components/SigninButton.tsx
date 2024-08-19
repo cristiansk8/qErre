@@ -12,8 +12,8 @@ const SigninButton = () => {
     if (session?.user && !isUserRegistered) {
       const registerUser = async () => {
         const formData = new FormData();
-        formData.append('name', session.user.name || '');
-        formData.append('email', session.user.email || '');
+        formData.append('name', session.user?.name || '');
+        formData.append('email', session.user?.email || '');
 
         try {
           await createUser(formData);

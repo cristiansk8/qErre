@@ -1,3 +1,5 @@
+// actions/tasks-actions.ts
+
 "use server";
 
 import prisma from "@/lib/prisma";
@@ -11,21 +13,20 @@ export async function createTask(formData: FormData, userEmail: string) {
   const qrCode = formData.get("qrCode")?.toString();
 
   if (!name || !description || !priority || !qrCode) {
-    return;
+    return { success: false, message: "Please fill in all fields." };
   }
 
   try {
-    // Buscar el usuario por correo
     const user = await prisma.user.findUnique({
       where: { correo: userEmail },
     });
 
     if (!user) {
       console.error("User not found");
-      return;
+      return { success: false, message: "User not found." };
     }
 
-    const newTask = await prisma.task.create({
+    await prisma.task.create({
       data: {
         name: name,
         description: description,
@@ -35,9 +36,10 @@ export async function createTask(formData: FormData, userEmail: string) {
       },
     });
 
-    redirect("/");
+    return { success: true, message: "Task created successfully!" };
   } catch (error) {
     console.error("Error creating task:", error);
+    return { success: false, message: "Error creating task." };
   }
 }
 
@@ -49,23 +51,21 @@ export async function updateTask(formData: FormData, userEmail: string) {
   const qrCode = formData.get("qrCode")?.toString();
 
   if (!id || !name || !description || !priority || !qrCode) {
-    return;
+    return { success: false, message: "Please fill in all fields." };
   }
 
   try {
-    // Buscar el usuario por correo
     const user = await prisma.user.findUnique({
       where: { correo: userEmail },
     });
 
     if (!user) {
       console.error("User not found");
-      return;
+      return { success: false, message: "User not found." };
     }
 
-    // Actualizar la tarea
-    const updatedTask = await prisma.task.update({
-      where: { id: parseInt(id) }, // Asegúrate de que el ID esté en el formato correcto
+    await prisma.task.update({
+      where: { id: parseInt(id, 10) },
       data: {
         name: name,
         description: description,
@@ -75,9 +75,9 @@ export async function updateTask(formData: FormData, userEmail: string) {
       },
     });
 
-    // Redirigir después de la actualización
-    redirect("/");
+    return { success: true, message: "Task updated successfully!" };
   } catch (error) {
     console.error("Error updating task:", error);
+    return { success: false, message: "Error updating task." };
   }
 }

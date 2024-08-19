@@ -3,6 +3,7 @@
 import QRCode from 'qrcode';
 
 export const generateQRCodeDataURL = (url: string): Promise<string> => {
+  //cambio de url cont
   return new Promise((resolve, reject) => {
     QRCode.toDataURL(url, (err: any, dataURL: string | PromiseLike<string>) => {
       if (err) {

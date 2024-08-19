@@ -22,10 +22,15 @@ import { createTask, updateTask } from "@/actions/tasks-actions";
 import { Task } from "@prisma/client";
 import Link from "next/link";
 import { generateQRCodeDataURL } from "@/components/qr";
+import { useSession } from "next-auth/react";
 
 function TaskForm({ task }: { task?: Task }) {
   const [name, setName] = useState(task?.name || "");
   const [qrCode, setQRCode] = useState(task?.qrCode || "");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const { data: session } = useSession();
+  const userEmail = session?.user?.email || "";
   const functionAction = task?.id ? updateTask : createTask;
 
   useEffect(() => {
@@ -36,15 +41,40 @@ function TaskForm({ task }: { task?: Task }) {
     }
   }, [name]);
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSuccessMessage("");
+    setErrorMessage("");
+    
+    const formData = new FormData(e.currentTarget);
+    try {
+      const result = await functionAction(formData, userEmail);
+      
+      if (result.success) {
+        setSuccessMessage("Task submitted successfully!");
+        setName("");
+        setQRCode("");
+        e.currentTarget.reset(); // Limpia el formulario
+      } else {
+        setErrorMessage(result.message || "An error occurred.");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setErrorMessage("An error occurred. Please try again.");
+    }
+  };
+
   return (
-    <form action={functionAction}>
+    <form onSubmit={handleSubmit}>
       <input type="hidden" name="id" value={task?.id} />
       <input type="hidden" name="qrCode" value={qrCode} />
       <Card className="w-[350px]">
         <CardHeader>
-          <CardTitle>Create QR</CardTitle>
+          <CardTitle>{task?.id ? "Update Task" : "Create Task"}</CardTitle>
           <CardDescription>
-            Crea postea y trakea
+            {task?.id
+              ? "Update the details of the task."
+              : "Fill out the form below to create a new task."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -54,7 +84,7 @@ function TaskForm({ task }: { task?: Task }) {
               <Input
                 name="name"
                 id="name"
-                placeholder="Name of your task"
+                placeholder="Name of your QR"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -88,6 +118,12 @@ function TaskForm({ task }: { task?: Task }) {
                 <img src={qrCode} alt="Generated QR Code" />
               </div>
             )}
+            {successMessage && (
+              <div className="text-green-600 mt-4">{successMessage}</div>
+            )}
+            {errorMessage && (
+              <div className="text-red-600 mt-4">{errorMessage}</div>
+            )}
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
@@ -104,4 +140,3 @@ function TaskForm({ task }: { task?: Task }) {
 }
 
 export default TaskForm;
-
